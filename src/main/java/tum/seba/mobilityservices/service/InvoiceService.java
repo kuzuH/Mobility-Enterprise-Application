@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tum.seba.mobilityservices.entity.Invoice;
+import tum.seba.mobilityservices.exception.EntityNotFoundException;
 import tum.seba.mobilityservices.repository.InvoiceRepository;
 
 @Service
@@ -12,8 +13,8 @@ public class InvoiceService {
 	@Autowired
 	private InvoiceRepository invoiceRepository;
 	
-	public void save(Invoice newInvoice) {
-		invoiceRepository.save(newInvoice);
+	public Invoice save(Invoice newInvoice) {
+		return invoiceRepository.save(newInvoice);
 	}
 	
 	public Iterable<Invoice> findAll() {
@@ -21,7 +22,7 @@ public class InvoiceService {
 	}
 	
 	public Invoice findById(int invoiceId) {
-		return invoiceRepository.findById(invoiceId).orElse(null);
+		return invoiceRepository.findById(invoiceId).orElseThrow(() -> new EntityNotFoundException("Invoice with ID '" + invoiceId + "' does not exist!"));
 	}
 	
 	public void deleteById(int invoiceId) {

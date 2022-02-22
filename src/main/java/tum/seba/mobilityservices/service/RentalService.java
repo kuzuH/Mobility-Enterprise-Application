@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import tum.seba.mobilityservices.entity.Rental;
+import tum.seba.mobilityservices.exception.EntityNotFoundException;
 import tum.seba.mobilityservices.repository.RentalRepository;
 
 @Service
@@ -12,18 +13,18 @@ public class RentalService {
 	@Autowired
 	private RentalRepository rentalRepository;
 
-	public void save(Rental newRental) {
-		rentalRepository.save(newRental);
+	public Rental save(Rental newRental) {
+		return rentalRepository.save(newRental);
 	}
-	
+
 	public Iterable<Rental> findAll() {
 		return rentalRepository.findAll();
 	}
-	
+
 	public Rental findById(int rentalId) {
-		return rentalRepository.findById(rentalId).orElse(null);
+		return rentalRepository.findById(rentalId).orElseThrow(() -> new EntityNotFoundException("Rental with ID '" + rentalId + "' does not exist!"));
 	}
-	
+
 	public void deleteById(int rentalId) {
 		
 		try {
@@ -34,5 +35,9 @@ public class RentalService {
 		}
 		
 	}
-	
+
+	public Iterable<Rental> findCompletedRentals() {
+		return rentalRepository.findCompletedRentals();
+	}
+
 }

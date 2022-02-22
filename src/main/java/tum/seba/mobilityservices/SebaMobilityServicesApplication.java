@@ -1,6 +1,7 @@
 package tum.seba.mobilityservices;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -18,9 +19,12 @@ import tum.seba.mobilityservices.entity.Rental.Status;
 import tum.seba.mobilityservices.entity.ServicePoint;
 import tum.seba.mobilityservices.entity.User;
 import tum.seba.mobilityservices.entity.Vehicle;
+import tum.seba.mobilityservices.service.CustomerService;
+import tum.seba.mobilityservices.service.EmployeeService;
 import tum.seba.mobilityservices.service.InvoiceService;
 import tum.seba.mobilityservices.service.RentalService;
 import tum.seba.mobilityservices.service.ServicePointService;
+import tum.seba.mobilityservices.service.VehicleService;
 
 @SpringBootApplication
 public class SebaMobilityServicesApplication {
@@ -33,6 +37,15 @@ public class SebaMobilityServicesApplication {
 	
 	@Autowired
 	private ServicePointService servicePointService;
+	
+	@Autowired
+	private EmployeeService employeeService;
+	
+	@Autowired
+	private CustomerService customerService;
+	
+	@Autowired
+	private VehicleService vehicleService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SebaMobilityServicesApplication.class, args);
@@ -45,8 +58,8 @@ public class SebaMobilityServicesApplication {
 		
 		// instantiate test data
 		
-		Rental testRental = new Rental(new Date(), new Date(), Status.BOOKED);
-		Invoice testInvoice = new Invoice(120.50, true);
+		Rental testRental = new Rental(new Date(), new Date(), Status.COMPLETED);
+		Invoice testInvoice = new Invoice(120.50, false);
 		ServicePoint testServicePoint = new ServicePoint("TUM Main Campus", "Arcisstr.", 21, "Munich");
 		User testUser = new User("Max", "Test", "max.test@tum.de", "pw123", "Arcisstr.", 21, "Munich");
 		Employee testEmployee = new Employee("Max", "Test", "max.test@tum.de", "pw123", "Arcisstr.", 21, "Munich", "0123456789", new Date());
@@ -68,17 +81,50 @@ public class SebaMobilityServicesApplication {
 		System.out.println(testCar.toString());
 		System.out.println(testBicycle.toString());
 		
+		// set associations
+		
+		testRental.setCustomer(testCustomer);
+		testRental.setVehicle(testCar);
+		testRental.setInvoice(testInvoice);
+		testRental.setStartLocation(testServicePoint);
+		testRental.setEndLocation(testServicePoint);
+		testCustomer.setRentals(List.of(testRental));
+		testCar.setCurrentLocation(testServicePoint);
+		testCar.setRentals(List.of(testRental));
+		testServicePoint.setVehicles(List.of(testCar, testBicycle));
+		testServicePoint.setRentalsStart(List.of(testRental));
+		testServicePoint.setRentalsEnd(List.of(testRental));
+		testServicePoint.setEmployees(List.of(testEmployee));
+		testEmployee.setServicePoints(List.of(testServicePoint));
+		
 		// persist entities to database
 		
 		rentalService.save(testRental);
 		invoiceService.save(testInvoice);
 		servicePointService.save(testServicePoint);
+		employeeService.save(testEmployee);
+		customerService.save(testCustomer);
+		vehicleService.save(testVehicle);
+		vehicleService.save(testCar);
+		vehicleService.save(testBicycle);
 		
 		// read each instance from the database
 		
 		System.out.println(rentalService.findById(testRental.getId()).toString());
 		System.out.println(invoiceService.findById(testInvoice.getId()).toString());
 		System.out.println(servicePointService.findById(testServicePoint.getId()).toString());
+		System.out.println(employeeService.findById(testEmployee.getId()).toString());
+		System.out.println(customerService.findById(testCustomer.getId()).toString());
+		System.out.println(vehicleService.findById(testVehicle.getId()).toString());
+		System.out.println(vehicleService.findById(testCar.getId()).toString());
+		System.out.println(vehicleService.findById(testBicycle.getId()).toString());
+		
+		
+		// test queries
+		
+		System.out.println(rentalService.findCompletedRentals());
+		System.out.println(customerService.findCustomerWithUnpaidInvoices());
+		System.out.println(vehicleService.findVehiclesByServicePoint(testServicePoint));
 		
 	}
 

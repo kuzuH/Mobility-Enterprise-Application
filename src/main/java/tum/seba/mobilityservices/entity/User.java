@@ -1,24 +1,68 @@
 package tum.seba.mobilityservices.entity;
 
-public class User {
+import java.util.Collection;
+import java.util.Collections;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@MappedSuperclass
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class User implements UserDetails {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+
+	@NotBlank
 	private String firstName;
+	@NotBlank
 	private String lastName;
+	@Email
 	private String email;
+	@NotBlank
 	private String password;
+	@NotBlank
 	private String streetName;
+	@Positive
 	private int houseNumber;
+	@NotBlank
 	private String city;
-	
+
+	public User() {}
+
 	public User(String firstName, String lastName, String email, String password, String streetName, int houseNumber,
 			String city) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
-		this.password = password;
+		Argon2PasswordEncoder passwordEncoder = new Argon2PasswordEncoder();
+		this.password = passwordEncoder.encode(password);;
 		this.streetName = streetName;
 		this.houseNumber = houseNumber;
 		this.city = city;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getFirstName() {
@@ -43,6 +87,10 @@ public class User {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	
+	public String getUsername() {
+		return email;
 	}
 
 	public String getPassword() {
@@ -79,8 +127,41 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", password=" + password
-				+ ", streetName=" + streetName + ", houseNumber=" + houseNumber + ", city=" + city + "]";
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", password=" + password + ", streetName=" + streetName + ", houseNumber=" + houseNumber + ", city="
+				+ city + "]";
+	}
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+
+		final SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("rolePlaceholder");
+		return Collections.singletonList(simpleGrantedAuthority);
+	}
+	
+	// the following user properties are currently not used, therefore all returning true
+	@JsonIgnore
+	@Override
+	public boolean isAccountNonLocked() {
+	    return true;
+	}
+	 
+	@JsonIgnore
+	@Override
+	public boolean isAccountNonExpired() {
+	    return true;
+	}
+	
+	@JsonIgnore
+	@Override
+	public boolean isCredentialsNonExpired() {
+	    return true;
+	}
+	
+	@JsonIgnore
+	@Override
+	public boolean isEnabled() {
+	    return true;
 	}
 
 }

@@ -2,15 +2,38 @@ package tum.seba.mobilityservices.entity;
 
 import java.util.Date;
 
-	public class Bicycle extends Vehicle {
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.validation.constraints.Positive;
+
+@Entity
+public class Bicycle extends Vehicle {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+
+	@Positive
 	private int numberOfGears;
 	private boolean isElectrical;
+	
+	public Bicycle() {}
 	
 	public Bicycle(String manufacturer, String modelType, Date lastService, boolean isAvailable, int numberOfGears,
 			boolean isElectrical) {
 		super(manufacturer, modelType, lastService, isAvailable);
 		this.numberOfGears = numberOfGears;
 		this.isElectrical = isElectrical;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public int getNumberOfGears() {
@@ -31,7 +54,7 @@ import java.util.Date;
 
 	@Override
 	public String toString() {
-		return "Bicycle [numberOfGears=" + numberOfGears + ", isElectrical=" + isElectrical + "]";
+		return "Bicycle [id=" + id + ", numberOfGears=" + numberOfGears + ", isElectrical=" + isElectrical + "]";
 	}
 
 }
