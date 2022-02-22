@@ -1,5 +1,3 @@
 # Mobility-Enterprise-Application
 
-### Note: This repos is still in progress :) 
-
-The main goal of this project is to build the backend of a rental mobility application using Java and Spring Boot. 
+The main goal of this project is to build the backend of a rental mobility application using Java and the Framework Spring Boot. This is a course project of the Technical University of Munich (Module: Software Engineering for Business Applications).
